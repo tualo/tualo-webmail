@@ -3,7 +3,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 	extend: 'Ext.container.Viewport',
 	requires: [
 		'Ext.panel.Panel',
-		'Ext.tualo.ide.components.AccountPanel'
+		'Ext.tualo.ide.components.MessageBox'
 	],
 	layout: 'fit',
 	constructor: function (config) {
@@ -121,7 +121,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			}
 		});
 		
-		scope.accountPanel = Ext.create('Ext.tualo.ide.components.AccountPanel',{
+		scope.accountPanel = Ext.create('Ext.tualo.ide.components.MessageBox',{
 			title: scope.dictionary.get('sampleTitle'),
 		})
 		scope.cards = Ext.create('Ext.panel.Panel',{

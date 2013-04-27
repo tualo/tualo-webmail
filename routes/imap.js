@@ -26,15 +26,42 @@ var tree = function(req, res, next) {
 }
 
 var list = function(req, res, next) {
+	var imap = new Imap();
+	imap.on('error',function(conn,err){
+		console.log('[test] error');
+		console.log(err);
+	})
 	
+	imap.on('imap error',function(conn,keyName,msg,shortmsg){
+		console.log('[test] imap error ('+keyName+'): '+msg+' '+shortmsg);
+	})
+	
+	imap.on('error chained',function(conn,keyName,msg,shortmsg){
+		console.log('[test] error chained ('+keyName+'): '+msg+' '+shortmsg);
+	})
+	
+	imap.on('chained',function(conn){
+		console.log('[test] chain finished');
+		console.log(conn.get('message1'));
+		console.log(conn.get('body1'));
+	});
+
+	imap.chained()
+		.connect()
+		.login()
+		.select('inbox','key1') // open the inbox
+		.fetch(1,'RFC822','body1')
+		.logout()
+		.execute();
+	handleError(new Error('not implemented yet'),req, res, next);
 }
 
+var read = function(req, res, next) {
+	handleError(new Error('not implemented yet'),req, res, next);
+}
 
 exports.initRoute=function(app){
-	
-	readAllMails(null, null, null,function(m){
-		console.log(m);
-	})
+
 	
 	app.get("/tree",tree);
 	app.get("/list",list);
