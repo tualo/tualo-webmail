@@ -1,0 +1,30 @@
+// Sample Text
+.grid-header-from-text{
+	
+}
+
+.grid-header-from-mail{
+	opacity: 0.6;
+	font-size: 0.9em;
+}
+
+.x-tool-stop {
+	background-image: url(./svg/stop.svg) !important;
+}
+
+.x-tool-placeholder {
+    background-image: none !important;
+}
+
+/* Tooltip ExtJS 4.2 bug */
+.x-tip {
+	width: auto !important;
+}
+
+.x-tip-body {
+	width: auto !important;
+}
+
+.x-tip-body span {
+	width: auto !important;
+}

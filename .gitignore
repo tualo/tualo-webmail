@@ -1,0 +1,5 @@
+/node_modules
+/macos
+/doc
+.DS_Store
+.accounts

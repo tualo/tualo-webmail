@@ -1,0 +1,9 @@
+{
+	"tree.Title": "E-Mail-Accounts",
+	"grid.InboxTitle": "Inbox",
+	"grid.From": "From",
+	"grid.Subject": "Subject",
+	"grid.Date": "Date",
+	"grid.RemoteException": "Error",
+	"grid.DateFormat": "d-m-Y H:i:s"
+}

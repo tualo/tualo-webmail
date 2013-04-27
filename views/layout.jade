@@ -1,0 +1,24 @@
+//
+	Created with tualo IDE.
+	Author: Thomas Hoffmann
+	Company: tualo solutions GmbH
+	Date: 2013-04-12
+	
+	Diese Datei enthählt die komplette HTML Struktur der Editors
+	Zur besseren Lessbarkeit sind einzelen Themen mit einer Leerzeile von einander getrennt.
+
+doctype 5
+html(lang="de")
+	head
+		title= title
+		link(rel="icon",href="/favicon.large.ico",type="image/x-icon")
+		script(src='/socket.io/socket.io.js')
+		link(rel='stylesheet', href='/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.css')
+		link(rel='stylesheet', href='/ide/layout.css')
+
+		script(src='/extjs/ext-all.js')
+		-if (typeof locals.project!='undefined')
+			script(src='/ide/app.js')
+		-else
+			script(src='/ide/initapp.js')
+	body

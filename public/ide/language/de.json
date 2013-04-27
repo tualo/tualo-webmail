@@ -1,0 +1,7 @@
+{
+	"pleaseWaitTitle": "Bitte warten ...",
+	"pleaseWait": "Bitte warten ...",
+	
+	"confirmCloseOfChangedFile": "Die Datei *{1}* wurde nicht gespeichert, soll diese wirklich geschlossen werden?",
+	"confirmCloseOfChangedFileTitle": "veränderte Datei"
+}
