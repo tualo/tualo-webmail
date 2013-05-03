@@ -52,7 +52,8 @@ Ext.define('Ext.tualo.ide.components.Message', {
 				headHTML += '<span class="message-header-label">'+window.dictionary.get('message.Subject')+'</span>&nbsp;<span class="grid-header-from-subject">'+resObject.data.subject+'</span>';
 				mainLineCounter++;
 				
-				minHeight = Math.max(minHeight,mainLineCounter*15);
+				minHeight = Math.max(minHeight,mainLineCounter*15 + 15); // include a padding at the bottom
+				
 				
 				window.document.getElementById('message-'+this.xid).innerHTML = '';
 				if (typeof resObject.data.text!='undefined'){
