@@ -12,6 +12,12 @@
 	width: 200px;
 }
 
+.message-header-attachments{
+	float: right;
+}
+.message-header-attachments>a{
+	text-decoration: none;
+}
 .x-tool-stop {
 	background-image: url(./svg/stop.svg) !important;
 }

@@ -16,19 +16,37 @@ Ext.define('Ext.tualo.ide.components.Message', {
 		scope.mask.show();
 		Ext.Ajax.request({
 			url: '/read',
+			scope: scope,
 			params: {
 				id: id
 			},
 			success: function(response){
+				var scope = this;
 				scope.mask.hide();
 				var text = response.responseText;
 				// process server response here
 				var resObject = Ext.JSON.decode(text);
 				console.log(resObject);
 				var headHTML = "";
+				
+				var minHeight = 0;
+				if (typeof resObject.data.attachments!=='undefined'){
+					var attachmentHTML = '';
+					for(var i in resObject.data.attachments){
+						attachmentHTML += '<a href="#"><i class="icon-paper-clip"></i> &nbsp; '+resObject.data.attachments[i].fileName+'</a><br/>';
+					}
+					headHTML += '<div class="message-header-attachments">'+attachmentHTML+'</div>';
+					minHeight = Math.max(minHeight,(resObject.data.attachments.length)*15 + 15);
+				}
+				
+				var mainLineCounter = 0;
 				headHTML += '<span class="message-header-label">'+window.dictionary.get('message.From')+'</span>&nbsp;<span class="grid-header-from-text">'+resObject.data.from[0].name+'</span>&nbsp;<span class="grid-header-from-mail">'+resObject.data.from[0].address+'</span>';
 				headHTML += '<br/>';
+				mainLineCounter++;
 				headHTML += '<span class="message-header-label">'+window.dictionary.get('message.Subject')+'</span>&nbsp;<span class="grid-header-from-subject">'+resObject.data.subject+'</span>';
+				mainLineCounter++;
+				
+				minHeight = Math.max(minHeight,mainLineCounter*15);
 				
 				window.document.getElementById('message-'+this.xid).innerHTML = '';
 				if (typeof resObject.data.text!='undefined'){
@@ -38,6 +56,7 @@ Ext.define('Ext.tualo.ide.components.Message', {
 					window.document.getElementById('message-'+this.xid).innerHTML = resObject.data.html;
 				}
 				window.document.getElementById('header-'+this.xid).innerHTML = headHTML;
+				scope.messageHeader.setHeight(minHeight + 15);
 			}
 		});
 	},
