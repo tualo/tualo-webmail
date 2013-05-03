@@ -1,7 +1,7 @@
 Description
 ===========
 
-tualo-webmail is a web IMAP client.
+tualo-webmail is a web IMAP client. Actualy the server is in development and may not work like expected.
 
 
 
@@ -22,5 +22,6 @@ Installation
 How to run
 ============
 
-    Start the server with the commandline:
+Start the server with the commandline:
+
     node app.js

@@ -183,8 +183,7 @@ var list = function(req, res, next) {
 		if (imap.executed('fetch')){
 			var fetchedObj = imap.get('fetch').getFetched();
 			imap.removeKey('fetch'); // prevend event loop
-			//console.log(fetchedObj.envelope.from.mailbox+'|'+fetchedObj.envelope.subject+': '+JSON.stringify(fetchedObj.bodyStructure));
-			imap.dataHelper.push({
+						imap.dataHelper.push({
 				id: req.query.node +'_msg_'+ fetchedObj.number,
 				size: fetchedObj.size,
 				subject: mailParser._replaceMimeWords(fetchedObj.envelope.subject),
