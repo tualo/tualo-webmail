@@ -3,7 +3,7 @@
 	"description": "WebMail-App written in JavaScript ",
 	"homepage": "http://webmail-project.tualo.de",
 	"main": "app.js",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"node": ">=0.8.0"
 	},
@@ -18,10 +18,7 @@
 	"dependencies": {
 		"express": ">=3.1.1",
 		"jade": ">=0.28.2",
-		"imap": ">=0.6.0",
-		"iconv": ">=2.0.6",
-		"socket.io": ">=0.9.14",
-		"socket.io-client": ">=0.9.11"
-	},
-	"_id": "tualo-webmail@0.0.1"
+		"tualo-imap": ">=0.0.8",
+		"iconv": ">=2.0.6"
+	}
 }
