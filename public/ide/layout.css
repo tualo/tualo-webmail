@@ -8,6 +8,10 @@
 	font-size: 0.9em;
 }
 
+.message-header-label{
+	width: 200px;
+}
+
 .x-tool-stop {
 	background-image: url(./svg/stop.svg) !important;
 }

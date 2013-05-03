@@ -5,5 +5,20 @@
 	"grid.Subject": "Subject",
 	"grid.Date": "Date",
 	"grid.RemoteException": "Error",
-	"grid.DateFormat": "d-m-Y H:i:s"
+	"grid.DateFormat": "d-m-Y H:i:s",
+	"grid.SizeFormat": "0,000.00",
+	"grid.Size": "Size",
+	"grid.IconColumn": "",
+	
+	"tree.Inbox": "Inbox",
+	"tree.Drafts": "Drafts",
+	"tree.Sent": "Sent",
+	"tree.Trash": "Trash",
+	"tree.Junk": "Junk",
+	
+	
+	"message.From": "From:",
+	"message.Subject": "Subject:",
+	
+	"loader.PleaseWait": "Please wait ..."
 }

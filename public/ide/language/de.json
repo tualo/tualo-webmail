@@ -1,7 +1,24 @@
 {
-	"pleaseWaitTitle": "Bitte warten ...",
-	"pleaseWait": "Bitte warten ...",
+	"tree.Title": "E-Mail-Konten",
+	"grid.InboxTitle": "Posteingang",
+	"grid.From": "Von",
+	"grid.Subject": "Betreff",
+	"grid.Date": "Datum",
+	"grid.RemoteException": "Fehler",
+	"grid.DateFormat": "d.m.Y H:i:s",
+	"grid.SizeFormat": "0,000.00",
+	"grid.Size": "Gr&ouml;&szlig;e",
+	"grid.IconColumn": "",
 	
-	"confirmCloseOfChangedFile": "Die Datei *{1}* wurde nicht gespeichert, soll diese wirklich geschlossen werden?",
-	"confirmCloseOfChangedFileTitle": "veränderte Datei"
+	"tree.Inbox": "Posteingang",
+	"tree.Drafts": "Entw&uuml;rfe",
+	"tree.Sent": "Gesendet",
+	"tree.Trash": "Papierkorb",
+	"tree.Junk": "Spam",
+	
+	
+	"message.From": "Von:",
+	"message.Subject": "Betreff:",
+	
+	"loader.PleaseWait": "Bitte warten ..."
 }

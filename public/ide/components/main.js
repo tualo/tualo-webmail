@@ -79,6 +79,52 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			width: 300,
 			store: store,
 			rootVisible: true,
+			viewConfig: {
+				plugins: {
+					ptype: 'treeviewdragdrop',
+					dragGroup: 'folderItem',
+					dropGroup: 'mailItem',
+					enableDrag: false,
+					enableDrop: true
+				},
+				listeners: {
+					drop: function(node, data, dropRec, dropPosition) {
+						var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
+						console.log('Drag from grid to tree', 'Dropped ' + data.records[0].get('name') + dropOn);
+					},
+					beforedrop: function(node, data, overModel, dropPosition, dropHandlers){
+						dropHandlers.cancelDrop();
+						// data.records[0].get('id')  << Message ID
+						// overModel.get('id') << Folder ID
+						var messageID = data.records[0].get('id');
+						var dropOverBoxID = overModel.get('id');
+						if (messageID.indexOf(dropOverBoxID)==0){
+							return 0;
+						}else{
+						
+						}
+						console.log('Drag test from grid to tree', 'Dropped ' + data.records[0].get('id') + ' *** ' +  overModel.get('id'));
+						console.log(arguments);
+						return true;
+					}
+				}
+			},
+			columns : [
+				{
+					xtype : 'treecolumn',
+					dataIndex : 'text',
+					flex: 1,
+					renderer : function(value,meta, record){
+						value = value.replace(/^inbox$/i	 ,window.dictionary.get('tree.Inbox'));
+						value = value.replace(/^trash$/i	 ,window.dictionary.get('tree.Trash'));
+						value = value.replace(/^drafts$/i	 ,window.dictionary.get('tree.Drafts'));
+						value = value.replace(/^junk$/i		,window.dictionary.get('tree.Junk'));
+						//value = value.replace(/^sent\sitems$/i		,window.dictionary.get('tree.SentItems'));
+						value = value.replace(/^sent$/i		,window.dictionary.get('tree.Sent'));
+						return value;
+					}
+				}
+			],
 			root: {
 				text: window.dictionary.get('tree.Title'),
 				expanded: true,
@@ -93,7 +139,9 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					if (record.get('id')!==''){
 						
 						scope.accountPanel.load(record.get('id'));
-						scope.accountPanel.setTitle(record.get('text'));
+						var path = record.getPath('text',' &gt; ');
+						scope.mainFrame.setTitle( window.document.title + ' '+path);
+						//scope.accountPanel.setTitle(record.get('text'));
 						
 					}
 				},
@@ -122,7 +170,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		});
 		
 		scope.accountPanel = Ext.create('Ext.tualo.ide.components.MessageBox',{
-			title: scope.dictionary.get('sampleTitle'),
+			//title: scope.dictionary.get('sampleTitle'),
 		})
 		scope.cards = Ext.create('Ext.panel.Panel',{
 			region: 'center',
@@ -133,8 +181,8 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		});
 		 
 		scope.items = [
-			Ext.create('Ext.panel.Panel',{
-				title: 'tualo WebMail',
+			scope.mainFrame = Ext.create('Ext.panel.Panel',{
+				title: window.document.title,
 				layout: {
 					type: 'border',
 					padding: 5

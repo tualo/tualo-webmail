@@ -6,12 +6,16 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 	],
 	layout: {
 		type: 'border',
-		padding: 5
+		padding: 0
 		
 	},
+	border: false,
 	load: function(id){
 		var scope = this;
+		scope._treeID = id;
+		//console.log('MessageBox ID:'+id);
 		scope.grid.getStore().load();
+		scope.grid.show();
 	},
 	constructor: function (config) {
 		var scope = this;
@@ -19,26 +23,38 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 		Ext.define(this.modelID, {
 			extend: 'Ext.data.Model',
 			fields: [{
-				name: 'uid',
-				type: 'number'
-			}, {
-				name: 'seqno',
-				type: 'number'
+				name: 'id',
+				type: 'string'
 			}, {
 				name: 'date',
 				type: 'date'
+			}, {
+				name: 'fromName',
+				type: 'string'
 			}, {
 				name: 'from',
 				type: 'string'
 			}, {
 				name: 'to',
-				type: 'number'
+				type: 'string'
 			}, {
 				name: 'subject',
 				type: 'string'
 			}, {
-				name: 'unseen',
+				name: 'seen',
 				type: 'boolean'
+			}, {
+				name: 'answered',
+				type: 'boolean'
+			}, {
+				name: 'forwarded',
+				type: 'boolean'
+			}, {
+				name: 'attachment',
+				type: 'boolean'
+			}, {
+				name: 'size',
+				type: 'int'
 			}]
 		});
 		
@@ -78,36 +94,101 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 						
 					}
 				}
+			},
+			listeners: {
+				scope: scope,
+				beforeload: function(store,options,eOpt){
+					var scope = this;
+					if (scope._treeID === 'undefined') return false;
+					if (typeof options==='undefined'){ options = {}; }
+					if (typeof options.params==='undefined'){ options.params = {}; }
+					options.params.node = scope._treeID;
+					return true;
+				}
 			}
 		});
 		
 		this.grid = Ext.create('Ext.grid.Panel', {
 			//title: window.dictionary.get('grid.InboxTitle'),
 			region: 'north',
-			height: 300,
+			flex: 1,
+			hidden: true,
 			split: true,
 			store: store,
+			viewConfig: {
+				plugins: {
+					ptype: 'gridviewdragdrop',
+					dragGroup: 'mailItem',
+					dropGroup: 'mailItem'
+				},
+				listeners: {
+					drop: function(node, data, dropRec, dropPosition) {
+						var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
+						console.log('Drag from grid', 'Dropped ' + data.records[0].get('name') + dropOn);
+					}
+				}
+			},
 			columns: [
 				{ 
-					text: window.dictionary.get('grid.From'),  
-					dataIndex: 'from', 
-					flex: 1,
-					renderer: function(value){
-						if (value.indexOf('" ')>0){
-							var parts = value.split('" ');
-							return '<span class="grid-header-from-text">'+parts[0].replace('"','')+'</span>'+'&nbsp;<span class="grid-header-from-mail">'+( parts[1].replace("<","").replace(">","") ) +'</span>';
+					text: window.dictionary.get('grid.IconColumn'),  
+					dataIndex: 'attachment', 
+					width: 20,
+					renderer: function(value,meta,record,row,col,store){
+						if(value===true){
+							value ='<i class="icon-paper-clip"></i>';
 						}else{
-							return value;
+							value = '';
 						}
+						return value;
+					}
+				},
+				{ 
+					text: window.dictionary.get('grid.IconColumn'),  
+					dataIndex: 'forwarded', 
+					width: 20,
+					renderer: function(value,meta,record,row,col,store){
+						if(value===true){
+							value ='<i class="icon-forward"></i>';
+						}else{
+							value = '';
+						}
+						return value;
+					}
+				},
+				{ 
+					text: window.dictionary.get('grid.IconColumn'),  
+					dataIndex: 'answered', 
+					width: 20,
+					renderer: function(value,meta,record,row,col,store){
+						if(value===true){
+							value ='<i class="icon-play"></i>';
+						}else{
+							value = '';
+						}
+						return value;
+					}
+				},
+				{ 
+					text: window.dictionary.get('grid.From'),  
+					dataIndex: 'fromName', 
+					flex: 1,
+					renderer: function(value,meta,record,row,col,store){
+						if (value==''){
+							value = record.get('from');
+						}
+						if(record.get('seen')!==true){
+							value = '<b>'+value+'</b>';
+						}
+						return value;
 					}
 				},
 				{ 
 					text: window.dictionary.get('grid.Subject'), 
 					dataIndex: 'subject', 
 					flex: 1,
-					renderer: function(value,meta,record){
-						if (record.get('unseen')===true){
-							return '<b>'+value+'</b>';
+					renderer: function(value,meta,record,row,col,store){
+						if(record.get('seen')!==true){
+							value = '<b>'+value+'</b>';
 						}
 						return value;
 					}
@@ -116,20 +197,48 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 					text: window.dictionary.get('grid.Date'), 
 					dataIndex: 'date', 
 					xtype: 'datecolumn', 
-					format: window.dictionary.get('grid.DateFormat'),
-					width: 160
+					//format: window.dictionary.get('grid.DateFormat'),
+					width: 160,
+					renderer: function(value,meta,record,row,col,store){
+						
+						value = Ext.util.Format.date(value,window.dictionary.get('grid.DateFormat'));
+						if(record.get('seen')!==true){
+							value = '<b>'+value+'</b>';
+						}
+						return value;
+					}
+				},
+				{ 
+					text: window.dictionary.get('grid.Size'), 
+					dataIndex: 'size', 
+					xtype: 'numbercolumn', 
+					align: 'right',
+					width: 100,
+					renderer: function(value,meta,record,row,col,store){
+						var res = value;
+						var end = ' B';
+						if (Math.round(value/1024)>1){ end='kB'; res=value/1024;}
+						if (Math.round(value/1024/1024)>1){ end='MB'; res=value/1024/1024;}
+						
+						value = Ext.util.Format.number( res,window.dictionary.get('grid.SizeFormat')+end);
+						if(record.get('seen')!==true){
+							value = '<b>'+value+'</b>';
+						}
+						return  value;
+					}
 				}
 			],
 			listeners:{
 				scope: this,
 				itemclick: function( grid, record, item, index, e, eOpts ){
-					this.message.load(record.get('uid'));
+					this.message.load(record.get('id'));
 				}
 			}
 		});
 		
 		this.message = Ext.create('Ext.tualo.ide.components.Message', {
-			region: 'center'
+			region: 'center',
+			flex: 2
 		})
 		
 		this.items = [this.grid,this.message];
