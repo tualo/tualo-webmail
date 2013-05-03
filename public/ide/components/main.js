@@ -137,12 +137,12 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					
 					var scope = this;
 					if (record.get('id')!==''){
-						
-						scope.accountPanel.load(record.get('id'));
-						var path = record.getPath('text',' &gt; ');
-						scope.mainFrame.setTitle( window.document.title + ' '+path);
-						//scope.accountPanel.setTitle(record.get('text'));
-						
+						if (record.get('id').indexOf('-boxes-')>-1){
+							scope.accountPanel.load(record.get('id'));
+							var path = record.getPath('text',' &gt; ');
+							scope.mainFrame.setTitle( window.document.title + ' '+path);
+							//scope.accountPanel.setTitle(record.get('text'));
+						}
 					}
 				},
 				itemdblclick: function( scope, record, item, index, e, eOpts ){
