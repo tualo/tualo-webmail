@@ -272,7 +272,7 @@ var read = function(req, res, next) {
 						delete mail.attachments[i].content;
 					}
 				}
-				
+				mail.id = req.body.id;
 				var output = {
 					success: true,
 					data: mail,
@@ -363,6 +363,79 @@ var move = function(req, res, next) {
 }
 
 
+var attachment = function(req, res, next) {
+	var sessionConfig  = session.getCurrentSession();
+	var nodeParts = req.query.id.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
+	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
+	var accountID = (nodeParts[0].replace('account-',''))*1;
+	var ref = (nodeParts[1])?nodeParts[1]:'';
+	var ref_parts = ref.split('_msg_');
+	var reference = (ref_parts[0])?ref_parts[0]:'';
+	var msg_parts = ref_parts[1].split('_attachment_');
+	var number = (msg_parts[0])?msg_parts[0]:'9999999999';
+	var contentID = (msg_parts[1])?msg_parts[1]:'9999999999';
+	var account = sessionConfig.accounts[accountID];
+	
+	
+	var imap = getIMAPConnection(account);
+	imap.on('error',function(conn,err){
+		handleError(new Error('could not connect to the server'),req, res, next);
+	});
+	
+	imap.on('imap error',function(conn,keyName,msg,shortmsg){
+		handleError(new Error('error chained ('+keyName+'): '+msg+' '+shortmsg),req, res, next);
+	});
+	
+	imap.on('error chained',function(conn,keyName,msg,shortmsg){
+		handleError(new Error('error chained ('+keyName+'): '+msg+' '+shortmsg),req, res, next);
+	});
+	
+	imap.on('chained',function(imap){
+		if (imap.executed('logout')){
+			var fetch = imap.get('fetch').getFetched();
+			var mailparser = new MailParser();
+			mailparser.on("end", function(mail){
+				
+				// remove attachment buffer, reduce unneeded traffic
+				var data=null;
+				var contentType = 'none';
+				if (typeof mail.attachments!=='undefined'){
+					for(var i in mail.attachments){
+						if(mail.attachments[i].contentId==contentID){
+							data = mail.attachments[i].content;
+							contentType = mail.attachments[i].contentType;
+						}
+					}
+				}
+				
+				res.contentType(contentType);
+				res.end(data);
+				
+				/*
+				mail.id = req.body.id;
+				var output = {
+					success: true,
+					data: mail,
+					msg: 'all ok'
+				};
+				res.json(200,output);
+				*/
+			});
+			mailparser.write(fetch.text);
+			mailparser.end();
+		}
+	});
+	
+	imap.chained()
+		.connect()
+		.login()
+		.select('"'+reference+'"','inbox') // open the inbox
+		.fetch(number,'RFC822','fetch')
+		.logout('logout')
+		.execute();	
+	
+}
+
 exports.initRoute=function(app){
 
 	
@@ -374,5 +447,7 @@ exports.initRoute=function(app){
 	
 	app.post("/read",read);
 	app.post("/move",move);
+	
+	app.get("/attachment",attachment);
 }
 

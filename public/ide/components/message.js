@@ -33,7 +33,13 @@ Ext.define('Ext.tualo.ide.components.Message', {
 				if (typeof resObject.data.attachments!=='undefined'){
 					var attachmentHTML = '';
 					for(var i in resObject.data.attachments){
-						attachmentHTML += '<a href="#"><i class="icon-paper-clip"></i> &nbsp; '+resObject.data.attachments[i].fileName+'</a><br/>';
+						
+						attachmentHTML += [
+							'<a target="_blank" href="/attachment?id='+resObject.data.id+'_attachment_'+resObject.data.attachments[i].contentId+'">',
+								'<i class="icon-paper-clip"></i> &nbsp;',
+								resObject.data.attachments[i].fileName,
+							'</a><br/>'
+						].join('');
 					}
 					headHTML += '<div class="message-header-attachments">'+attachmentHTML+'</div>';
 					minHeight = Math.max(minHeight,(resObject.data.attachments.length)*15 + 15);
