@@ -25,3 +25,8 @@ How to run
 Start the server with the commandline:
 
     node app.js
+
+
+LICENSE
+============
+GPL v3, see http://fsf.org
