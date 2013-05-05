@@ -7,8 +7,8 @@
 
 var config = {
 	db: 'mongodb://127.0.0.1/tualo-imap',
-	session_secret: 'tualo-imap',
-	auth_cookie_name: 'tualo-imap',
+	session_secret: '732evSR&vsjhuzt&',
+	auth_cookie_name: 'tualo-webmail',
 	host: 'localhost',
 	port: 8099
 }

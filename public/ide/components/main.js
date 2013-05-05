@@ -3,7 +3,8 @@ Ext.define('Ext.tualo.ide.components.Main', {
 	extend: 'Ext.container.Viewport',
 	requires: [
 		'Ext.panel.Panel',
-		'Ext.tualo.ide.components.MessageBox'
+		'Ext.tualo.ide.components.MessageBox',
+		'Ext.tualo.ide.components.AccountTree'
 	],
 	layout: 'fit',
 	constructor: function (config) {
@@ -11,126 +12,12 @@ Ext.define('Ext.tualo.ide.components.Main', {
 	},
 	initComponent: function () {
 		var scope =this;
-		scope.files = [];
 		
-		scope.modelID = Ext.id();
-		Ext.define(this.modelID, {
-			extend: 'Ext.data.Model',
-			fields: [{
-				name: 'id',
-				type: 'string'
-			}, {
-				name: 'mtime',
-				type: 'date'
-			}, {
-				name: 'text',
-				type: 'string'
-			}, {
-				name: 'fsize',
-				type: 'number'
-			}, {
-				name: 'type',
-				type: 'string'
-			}]
-		});
-		
-		var store = Ext.create('Ext.data.TreeStore', {
-			model: this.modelID,
-			proxy: {
-				type: 'ajax',
-				api: {
-					read: '/tree'
-				},
-				reader: {
-					type: 'json',
-					successProperty: 'success',
-					root: 'data',
-					messageProperty: 'msg',
-					totalProperty  : 'total'
-				},
-				listeners: {
-					scope: this,
-					exception: function(proxy, response, operation){
-						try{
-							var o = Ext.JSON.decode(response.responseText);
-							Ext.MessageBox.show({
-								title: 'REMOTE EXCEPTION',
-								msg: o.msg,
-								icon: Ext.MessageBox.ERROR,
-								buttons: Ext.MessageBox.OK
-							});
-						}catch(e){
-							Ext.MessageBox.show({
-								title: 'REMOTE EXCEPTION',
-								msg: response.responseText,
-								icon: Ext.MessageBox.ERROR,
-								buttons: Ext.MessageBox.OK
-							});
-						}
-						
-					}
-				}
-			}
-		});
 		scope.xid = Ext.id();
-		scope.treePanel = Ext.create('Ext.tree.Panel', {
+		scope.treePanel = Ext.create('Ext.tualo.ide.components.AccountTree', {
 			region: 'west',
 			split: true,
 			width: 300,
-			store: store,
-			rootVisible: true,
-			viewConfig: {
-				plugins: {
-					ptype: 'treeviewdragdrop',
-					dragGroup: 'folderItem',
-					dropGroup: 'mailItem',
-					enableDrag: false,
-					enableDrop: true
-				},
-				listeners: {
-					drop: function(node, data, dropRec, dropPosition) {
-						var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
-						console.log('Drag from grid to tree', 'Dropped ' + data.records[0].get('name') + dropOn);
-					},
-					beforedrop: function(node, data, overModel, dropPosition, dropHandlers){
-						dropHandlers.cancelDrop();
-						// data.records[0].get('id')  << Message ID
-						// overModel.get('id') << Folder ID
-						var messageID = data.records[0].get('id');
-						var dropOverBoxID = overModel.get('id');
-						if (messageID.indexOf(dropOverBoxID)==0){
-							return 0;
-						}else{
-						
-						}
-						console.log('Drag test from grid to tree', 'Dropped ' + data.records[0].get('id') + ' *** ' +  overModel.get('id'));
-						console.log(arguments);
-						return true;
-					}
-				}
-			},
-			columns : [
-				{
-					xtype : 'treecolumn',
-					dataIndex : 'text',
-					flex: 1,
-					renderer : function(value,meta, record){
-						value = value.replace(/^inbox$/i	 ,window.dictionary.get('tree.Inbox'));
-						value = value.replace(/^trash$/i	 ,window.dictionary.get('tree.Trash'));
-						value = value.replace(/^drafts$/i	 ,window.dictionary.get('tree.Drafts'));
-						value = value.replace(/^junk$/i		,window.dictionary.get('tree.Junk'));
-						//value = value.replace(/^sent\sitems$/i		,window.dictionary.get('tree.SentItems'));
-						value = value.replace(/^sent$/i		,window.dictionary.get('tree.Sent'));
-						return value;
-					}
-				}
-			],
-			root: {
-				text: window.dictionary.get('tree.Title'),
-				expanded: true,
-				type: 'folder',
-				id: ''
-			},
 			listeners: {
 				scope: scope,
 				itemclick: function( scope, record, item, index, e, eOpts ){
@@ -165,6 +52,46 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					e.preventDefault();
 					e.stopEvent();
 					return false;
+				},
+				maildropped: function(index,message,mailbox){
+					//console.log(message);
+					//console.log(mailbox);
+					// messageId
+					var scope = this;
+					Ext.Ajax.request({
+						url: '/move',
+						scope: scope,
+						params: {
+							messageId: message,
+							boxId: mailbox
+						},
+						success: function(response){
+							var scope = this;
+							//scope.mask.hide();
+							try{
+							var text = response.responseText;
+							// process server response here
+							var resObject = Ext.JSON.decode(text);
+							if (resObject.success===true){
+								scope.accountPanel.load(); // reload the grid after successfully moving the message
+							}else{
+								Ext.MessageBox.show({
+									title: 'REMOTE EXCEPTION',
+									msg: resObject.msg,
+									icon: Ext.MessageBox.ERROR,
+									buttons: Ext.MessageBox.OK
+								});
+							}
+							}catch(e){
+								Ext.MessageBox.show({
+									title: 'REMOTE EXCEPTION',
+									msg: response.responseText,
+									icon: Ext.MessageBox.ERROR,
+									buttons: Ext.MessageBox.OK
+								});
+							}
+						}
+					});
 				}
 			}
 		});

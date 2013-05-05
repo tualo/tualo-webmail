@@ -10,9 +10,17 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 		
 	},
 	border: false,
+	/**
+	* Loads a mailbox into the grid by the given mailbox id. If no id is set, 
+	* the last id will be used to reload the grid.
+	*
+	* @params {string} id optional, mailbox id to be displayed
+	*/
 	load: function(id){
 		var scope = this;
-		scope._treeID = id;
+		if (typeof id!=='undefined'){
+			scope._treeID = id;
+		}
 		//console.log('MessageBox ID:'+id);
 		scope.grid.getStore().load();
 		scope.grid.show();
@@ -231,7 +239,14 @@ Ext.define('Ext.tualo.ide.components.MessageBox', {
 			listeners:{
 				scope: this,
 				itemclick: function( grid, record, item, index, e, eOpts ){
-					this.message.load(record.get('id'));
+					var scope=this;
+					scope.message.load(record.get('id'));
+					/*
+					var p= e.getXY();
+					scope.menu.showAt(p);
+					e.preventDefault();
+					e.stopEvent();
+					*/
 				}
 			}
 		});

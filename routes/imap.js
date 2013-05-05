@@ -183,7 +183,7 @@ var list = function(req, res, next) {
 		if (imap.executed('fetch')){
 			var fetchedObj = imap.get('fetch').getFetched();
 			imap.removeKey('fetch'); // prevend event loop
-						imap.dataHelper.push({
+			imap.dataHelper.push({
 				id: req.query.node +'_msg_'+ fetchedObj.number,
 				size: fetchedObj.size,
 				subject: mailParser._replaceMimeWords(fetchedObj.envelope.subject),
@@ -330,7 +330,7 @@ var move = function(req, res, next) {
 	imap.on('chained',function(imap){
 		if (imap.executed('copy')){
 			
-			imap.store(number,'+FLAGS','\deleted','store')
+			imap.store(number,'+FLAGS',['\\Deleted'],'store')
 			imap.removeKey('copy'); // prevend event loop
 			imap.execute();	
 		}
@@ -356,7 +356,7 @@ var move = function(req, res, next) {
 	imap.chained()
 		.connect()
 		.login()
-		.select('"'+reference+'"','inbox') // open the inbox
+		.select('"'+fromBox+'"','inbox') // open the inbox
 		.copy(number,toBox,'copy')
 		//.logout('logout')
 		.execute();	
