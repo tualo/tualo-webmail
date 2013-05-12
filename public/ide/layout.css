@@ -38,3 +38,7 @@
 .x-tip-body span {
 	width: auto !important;
 }
+
+.x-tool-logout:before{
+    content: 'L';
+}

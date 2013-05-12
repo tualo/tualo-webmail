@@ -6,7 +6,7 @@
  *  
  */
 
-var routes = ['sign','ui','imap'];
+var routes = ['session','sign','ui','imap'];
 
 var express = require('express');
 var config = require('./config/server').config;
@@ -40,3 +40,23 @@ app.startDirectory = __dirname; // bring the baseDir to the project-route
 for(var i in routes){
 	require('./routes/'+routes[i]).initRoute(app);
 }
+
+/*
+var ursa = require('ursa');
+var keyPair = ursa.generatePrivateKey();
+
+var privatePEM = keyPair.toPrivatePem('utf8');
+var publicPEM = keyPair.toPublicPem('utf8');
+
+console.log(privatePEM);
+var b = keyPair.encrypt('test','utf8','base64');
+console.log(b);
+var x = keyPair.decrypt(b,'base64','utf8');
+console.log(x); // test
+
+var xPriv = ursa.createPrivateKey(privatePEM);
+console.log(xPriv);
+console.log(xPriv.decrypt(b,'base64','utf8')); // here is OK
+
+process.exit();
+*/

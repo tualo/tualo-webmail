@@ -6,7 +6,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		'Ext.tualo.ide.components.MessageBox',
 		'Ext.tualo.ide.components.AccountTree'
 	],
-	layout: 'fit',
+	layout: 'card',
 	constructor: function (config) {
 		this.callParent([ config ]);
 	},
@@ -98,7 +98,10 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		
 		scope.accountPanel = Ext.create('Ext.tualo.ide.components.MessageBox',{
 			//title: scope.dictionary.get('sampleTitle'),
-		})
+		});
+		
+		// those card can be used to show content right of the tree
+		// mailbox or calendar
 		scope.cards = Ext.create('Ext.panel.Panel',{
 			region: 'center',
 			layout: 'card',
@@ -106,10 +109,31 @@ Ext.define('Ext.tualo.ide.components.Main', {
 				scope.accountPanel
 			]
 		});
-		 
+		
+		
+		scope.loginPanel = Ext.create('Ext.tualo.ide.components.Login',{
+			//title: scope.dictionary.get('sampleTitle'),
+			listeners: {
+				scope: scope,
+				loggedin: function(){
+					var scope = this;
+					scope.getLayout().setActiveItem(scope.mainFrame);
+				}
+			}
+		});
+		
+		//scope.activeItem = 0;
+		
 		scope.items = [
+			scope.loginPanel,
 			scope.mainFrame = Ext.create('Ext.panel.Panel',{
 				title: window.document.title,
+				tools: [{
+					type: 'logout',
+					handler: function(){
+						// show help here   icon-signout
+					}
+				}],
 				layout: {
 					type: 'border',
 					padding: 5

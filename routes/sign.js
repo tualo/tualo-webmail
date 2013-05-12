@@ -10,6 +10,7 @@
  */
 
 var auth_user = function(req, res, next) {
+	console.log('sign: auth_user');
     next();
 }
 

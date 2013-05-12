@@ -6,7 +6,7 @@
 
 
 var config = {
-	db: 'mongodb://127.0.0.1/tualo-imap',
+	db: 'text:/Users/thomashoffmann/.webmail',
 	session_secret: '732evSR&vsjhuzt&',
 	auth_cookie_name: 'tualo-webmail',
 	host: 'localhost',

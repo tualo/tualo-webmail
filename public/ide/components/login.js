@@ -1,12 +1,14 @@
 // Sample Text
-Ext.define('Ext.tualo.ide.components.Main', {
-	extend: 'Ext.container.Viewport',
+Ext.define('Ext.tualo.ide.components.Login', {
+	extend: 'Ext.panel.Panel',
 	requires: [
-		'Ext.panel.Panel',
-		'Ext.tualo.ide.components.MessageBox',
-		'Ext.tualo.ide.components.AccountTree'
+		'Ext.form.Panel'
 	],
-	layout: 'fit',
+	layout: {
+		type: 'vbox',
+		align: 'center',
+		pack: 'center'
+	},
 	constructor: function (config) {
 		this.callParent([ config ]);
 	},
@@ -20,18 +22,15 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			width: 400,
 			height: 200,
 			layout: 'anchor',
+			url: '/login',
 			bodyPadding: 15,
 			defaults: {
 					anchor: '100%'
 			},
 			defaultType: 'textfield',
 			items: [{
-				fieldLabel: 'Mandant',
-				name: 'mandant',
-				allowBlank: false
-			},{
 				fieldLabel: 'Benutzername',
-				name: 'login',
+				name: 'username',
 				allowBlank: false
 			},{
 				fieldLabel: 'Passwort',
@@ -48,16 +47,22 @@ Ext.define('Ext.tualo.ide.components.Main', {
 				}
 			}, {
 				text: 'Anmelden',
+				scope: scope,
 				formBind: true, //only enabled once the form is valid
 				handler: function() {
-					var form = this.up('form').getForm();
+					var scope = this;
+					var form = scope.form.getForm();
 					if (form.isValid()) {
 						form.submit({
+							scope: scope,
 							success: function(form, action) {
-								Ext.Msg.alert('Success', action.result.msg);
+								var scope = this;
+								scope.fireEvent('loggedin');
+								//scope.up().getLayout().setActiveItem(1);  // switch to main view
+								//Ext.Msg.alert('Success', action.result.msg);
 							},
 							failure: function(form, action) {
-								Ext.Msg.alert('Failed', action.result.msg);
+								Ext.MessageBox.alert('Failed', action.result.msg);
 							}
 						});
 					}

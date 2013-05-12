@@ -18,29 +18,8 @@ if (!Array.prototype.indexOf) {
     return -1;
   };
 }
-/*
-if (!Array.prototype.deepIndexOf) {
-	Array.prototype.deepIndexOf = function (obj, fromIndex) {
-		
-		if (fromIndex == null) {
-			fromIndex = 0;
-		} else if (fromIndex < 0) {
-			fromIndex = Math.max(0, this.length + fromIndex);
-		}
-		for (var i = fromIndex, j = this.length; i < j; i++) {
-			if (this[i] === obj){
-				return i;
-			}else if (typeof this[i]=='array'){
-				var r = this[i].deepIndexOf(obj);
-				if (r!=-1){
-					return i+'/'+r;
-				}
-			}
-		}
-		return -1;
-	};
-}
-*/
+
+
 var getImapInitObject = function(account){
 	var o = {
 		user: account.imapLogin,
@@ -78,7 +57,8 @@ var _listSort = function(a,b){
 }
 
 var tree = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession();
+	var sessionConfig  = session.getCurrentSession(req);
+	
 	var output = [];
 	if (req.query.node===''){
 		for(var i in sessionConfig.accounts){
@@ -140,7 +120,7 @@ var tree = function(req, res, next) {
 }
 
 var list = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession();
+	var sessionConfig  = session.getCurrentSession(req);
 	var nodeParts = req.query.node.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
@@ -236,7 +216,7 @@ var list = function(req, res, next) {
 }
 
 var read = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession();
+	var sessionConfig  = session.getCurrentSession(req);
 	var nodeParts = req.body.id.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
@@ -298,7 +278,7 @@ var read = function(req, res, next) {
 
 
 var move = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession();
+	var sessionConfig  = session.getCurrentSession(req);
 	var nodeParts = req.body.messageId.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
@@ -364,7 +344,7 @@ var move = function(req, res, next) {
 
 
 var attachment = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession();
+	var sessionConfig  = session.getCurrentSession(req);
 	var nodeParts = req.query.id.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
