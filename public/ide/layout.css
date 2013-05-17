@@ -22,6 +22,12 @@
 	background-image: url(./svg/stop.svg) !important;
 }
 
+
+.x-tool-logout{
+    background-image: url(/ide/icons/logout.png) !important;
+}
+
+
 .x-tool-placeholder {
     background-image: none !important;
 }
