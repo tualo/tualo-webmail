@@ -22,9 +22,9 @@ if (!Array.prototype.indexOf) {
 
 var getImapInitObject = function(account){
 	var o = {
-		user: account.imapLogin,
+		user: account.imapAccount,
 		password: account.imapPassword,
-		host: account.smtpServer,
+		host: account.imapServer,
 		port: account.imapPort, // 993
 		secure: account.imapSecure,
 		debug: false,
@@ -59,6 +59,7 @@ var _listSort = function(a,b){
 var tree = function(req, res, next) {
 	var sessionConfig  = session.getCurrentAccounts(req);
 	
+	
 	var output = [];
 	if (req.query.node===''){
 		for(var i in sessionConfig.accounts){
@@ -66,7 +67,7 @@ var tree = function(req, res, next) {
 				id: 'account-'+i,
 				text: sessionConfig.accounts[i].title,
 				leaf: false,
-				expanded: true
+				expanded: false
 			}
 			output.push(entry);
 		}
@@ -89,7 +90,6 @@ var tree = function(req, res, next) {
 		
 		imap.on('chained',function(imap){
 			var list = imap.get('list').getList();
-			//console.log(list);
 			var output = [];
 			for(var i in list){
 				var name = list[i].text;
