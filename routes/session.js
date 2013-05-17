@@ -132,7 +132,6 @@ var getUserAccount = function(username,password,callback){
 						if (private.decrypt(userObj.password,'base64','utf8')===password){
 							
 							var acc = [];
-							console.log(typeof userObj.accounts);
 							if (typeof userObj.accounts==='object'){
 								var json_text = '';
 								for(var i in userObj.accounts){
@@ -140,7 +139,6 @@ var getUserAccount = function(username,password,callback){
 								}
 								acc = JSON.parse(json_text);
 							}
-							console.log(acc);
 							callback(null,acc);
 						}else{
 							callback({
@@ -339,7 +337,6 @@ var saveaccount = function(req, res, next){
 				
 				
 				var public = ursa.createPublicKey(userobj.public);
-				//console.log(userobj.public);
 				
 				var json_txt = JSON.stringify(accs.accounts);
 				var chunks = json_txt.match(/.{1,41}/g);
