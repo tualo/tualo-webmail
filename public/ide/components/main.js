@@ -4,7 +4,8 @@ Ext.define('Ext.tualo.ide.components.Main', {
 	requires: [
 		'Ext.panel.Panel',
 		'Ext.tualo.ide.components.MessageBox',
-		'Ext.tualo.ide.components.AccountTree'
+		'Ext.tualo.ide.components.AccountTree',
+		'Ext.tualo.ide.components.AccountConfig'
 	],
 	layout: 'card',
 	constructor: function (config) {
@@ -21,10 +22,11 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			listeners: {
 				scope: scope,
 				itemclick: function( scope, record, item, index, e, eOpts ){
-					
 					var scope = this;
+					scope.cards.getLayout().setActiveItem(scope.accountPanel); // show mailbox panel 
 					if (record.get('id')!==''){
 						if (record.get('id').indexOf('-boxes-')>-1){
+							
 							scope.accountPanel.load(record.get('id'));
 							var path = record.getPath('text',' &gt; ');
 							scope.mainFrame.setTitle( window.document.title + ' '+path);
@@ -33,18 +35,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					}
 				},
 				itemdblclick: function( scope, record, item, index, e, eOpts ){
-					/*
-					if (record.get('id')!==''){
-						window.open(window.location.href+record.get('id'),'_blank',
-						[
-							'location=no',
-							'menubar=no',
-							'status=no',
-							'toolbar=no',
-							'titlebar=no'
-						].join(','));
-					}
-					*/
+					 
 				},
 				itemcontextmenu: function( tPanel, record, item, index, e, eOpts ){
 					//var p= e.getXY();
@@ -54,9 +45,6 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					return false;
 				},
 				maildropped: function(index,message,mailbox){
-					//console.log(message);
-					//console.log(mailbox);
-					// messageId
 					var scope = this;
 					Ext.Ajax.request({
 						url: '/move',
@@ -67,21 +55,20 @@ Ext.define('Ext.tualo.ide.components.Main', {
 						},
 						success: function(response){
 							var scope = this;
-							//scope.mask.hide();
 							try{
-							var text = response.responseText;
-							// process server response here
-							var resObject = Ext.JSON.decode(text);
-							if (resObject.success===true){
-								scope.accountPanel.load(); // reload the grid after successfully moving the message
-							}else{
-								Ext.MessageBox.show({
-									title: 'REMOTE EXCEPTION',
-									msg: resObject.msg,
-									icon: Ext.MessageBox.ERROR,
-									buttons: Ext.MessageBox.OK
-								});
-							}
+								var text = response.responseText;
+								// process server response here
+								var resObject = Ext.JSON.decode(text);
+								if (resObject.success===true){
+									scope.accountPanel.load(); // reload the grid after successfully moving the message
+								}else{
+									Ext.MessageBox.show({
+										title: 'REMOTE EXCEPTION',
+										msg: resObject.msg,
+										icon: Ext.MessageBox.ERROR,
+										buttons: Ext.MessageBox.OK
+									});
+								}
 							}catch(e){
 								Ext.MessageBox.show({
 									title: 'REMOTE EXCEPTION',
@@ -97,16 +84,17 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		});
 		
 		scope.accountPanel = Ext.create('Ext.tualo.ide.components.MessageBox',{
-			//title: scope.dictionary.get('sampleTitle'),
 		});
-		
+		scope.accountConfigPanel = Ext.create('Ext.tualo.ide.components.AccountConfig',{
+		});
 		// those card can be used to show content right of the tree
 		// mailbox or calendar
 		scope.cards = Ext.create('Ext.panel.Panel',{
 			region: 'center',
 			layout: 'card',
 			items:[
-				scope.accountPanel
+				scope.accountPanel,
+				scope.accountConfigPanel
 			]
 		});
 		
@@ -128,12 +116,23 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			scope.loginPanel,
 			scope.mainFrame = Ext.create('Ext.panel.Panel',{
 				title: window.document.title,
-				tools: [{
-					type: 'logout',
-					handler: function(){
-						// show help here   icon-signout
+				tools: [
+					{
+						type: 'gear',
+						scope: this,
+						handler: function(){
+							var scope = this;
+							scope.cards.getLayout().setActiveItem(scope.accountConfigPanel);
+						}
+					},
+					{
+						type: 'logout',
+						handler: function(){
+							// show help here   icon-signout
+							scope.getLayout().setActiveItem(scope.loginPanel);
+						}
 					}
-				}],
+				],
 				layout: {
 					type: 'border',
 					padding: 5
@@ -142,5 +141,9 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			})
 		]
 		scope.callParent(arguments);
+		if (loggedIn===true){
+			scope.getLayout().setActiveItem(scope.mainFrame);
+		}
+
 	}
 });
