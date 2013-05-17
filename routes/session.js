@@ -92,8 +92,13 @@ var createUserAccount = function(userobj,password,callback){
 		userobj.private = keyPair.toPrivatePem('utf8');
 		userobj.public = keyPair.toPublicPem('utf8');
 		userobj.password = keyPair.encrypt(password,'utf8','base64'); // encrypt the password
-		userobj.accounts = keyPair.encrypt(JSON.stringify(userobj.accounts),'utf8','base64'); // encrypt the account configs
-		
+		//userobj.accounts = keyPair.encrypt(JSON.stringify(userobj.accounts),'utf8','base64'); // encrypt the account configs
+		var json_txt = JSON.stringify(JSON.stringify(userobj.accounts));
+		var chunks = json_txt.match(/.{1,41}/g);
+		for(var i in chunks){
+			chunks[i] = public.encrypt(chunks[i],'utf8','base64');
+		}
+		userobj.accounts=chunks;
 		saveUserAccountFile(userobj,callback);
 		
 	}else{
@@ -125,7 +130,17 @@ var getUserAccount = function(username,password,callback){
 						var userObj = JSON.parse(data);
 						var private = ursa.createPrivateKey(userObj.private);
 						if (private.decrypt(userObj.password,'base64','utf8')===password){
-							var acc = JSON.parse(private.decrypt(userObj.accounts,'base64','utf8'));
+							
+							var acc = [];
+							console.log(typeof userObj.accounts);
+							if (typeof userObj.accounts==='object'){
+								var json_text = '';
+								for(var i in userObj.accounts){
+									json_text += private.decrypt(userObj.accounts[i],'base64','utf8')
+								}
+								acc = JSON.parse(json_text);
+							}
+							console.log(acc);
 							callback(null,acc);
 						}else{
 							callback({
@@ -284,11 +299,20 @@ var saveaccount = function(req, res, next){
 				var userobj = JSON.parse(data);
 				var accs = getCurrentAccounts(req);
 				var found = -1;
-				console.log(req.body);
+
 				for(var i in accs.accounts){
 					if (accs.accounts[i].title==req.body.remotetitle){
 						found=i;
 						break;
+					}
+				}
+				
+				if (found==-1){
+					for(var i in accs.accounts){ // search duplicate title
+						if (accs.accounts[i].title==req.body.title){
+							found=i;
+							break;
+						}
 					}
 				}
 				
@@ -298,22 +322,48 @@ var saveaccount = function(req, res, next){
 				}
 				accs.accounts[found].title = req.body.title;
 				accs.accounts[found].signature = req.body.signature;
+				
 				accs.accounts[found].imapServer = req.body.imapServer;
 				accs.accounts[found].imapPort = req.body.imapPort;
 				accs.accounts[found].imapAccount = req.body.imapAccount;
-				accs.accounts[found].imapPassword = req.body.imapPassword;
+				if (req.body.imapPassword!='******'){
+					accs.accounts[found].imapPassword = req.body.imapPassword;
+				}
+				
+				accs.accounts[found].smtpServer = req.body.smtpServer;
+				accs.accounts[found].smtpPort = req.body.smtpPort;
+				accs.accounts[found].smtpAccount = req.body.smtpAccount;
+				if (req.body.smtpPassword!='******'){
+					accs.accounts[found].smtpPassword = req.body.smtpPassword;
+				}
 				
 				
 				var public = ursa.createPublicKey(userobj.public);
+				//console.log(userobj.public);
 				
-				userobj.accounts = public.encrypt(JSON.stringify(accs.accounts[found]),'utf8','base64'); // encrypt the account configs
-				req.session.accounts = accs.accounts;
-				console.log(req.session.accounts);
-				var output = {
-					success: true,
-					msg: userobj
-				};
-				res.json(200,output);
+				var json_txt = JSON.stringify(accs.accounts);
+				var chunks = json_txt.match(/.{1,41}/g);
+				for(var i in chunks){
+					chunks[i] = public.encrypt(chunks[i],'utf8','base64');
+				}
+				userobj.accounts = chunks;
+				saveUserAccountFile(userobj,function(err,uo){
+					if (err){
+						var output = {
+							success: false,
+							msg: err.message
+						};
+						res.json(200,output);
+					}else{
+						var output = {
+							success: true,
+							msg: uo
+						};
+						res.json(200,output);
+					}
+				});
+				 
+				
 			}
 		})
 	}else{
