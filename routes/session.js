@@ -5,8 +5,52 @@ var ursa = require('ursa');
 var config = require('../config/server').config;
 
 
-function  dirExists (d, cb) { 
-	fs.stat(d, function(er, s) { 
+/**
+* Generate a session encrypted by the session_secret.
+* @private
+* @param {object} user the user to be stored
+* @param {object} res the response object for sending the cookie
+* @returns void
+*/
+function gen_session(user, res) {
+	var auth_token = encrypt(JSON.stringify(user), config.session_secret);
+	res.cookie(config.auth_cookie_name, auth_token, {
+		path : '/',
+		maxAge : 1000 * 60 * 60 * 24 * 30
+	});
+}
+
+/**
+* Encrypts the given string with the secret by using aes192
+* @param {string} str the string to be encrypted
+* @param {string} secret the passphrase use to encrypt
+*/
+function encrypt(str, secret) {
+	var cipher = crypto.createCipher('aes192', secret);
+	var enc = cipher.update(str, 'utf8', 'hex');
+	enc += cipher.final('hex');
+	return enc;
+}
+
+/**
+* Decrypts the given string with the secret by using aes192
+* @param {string} str the string to be decrypted
+* @param {string} secret the passphrase use to decrypt
+*/
+function decrypt(str, secret) {
+	var decipher = crypto.createDecipher('aes192', secret);
+	var dec = decipher.update(str, 'hex', 'utf8');
+	dec += decipher.final('utf8');
+	return dec;
+}
+
+/**
+* Check if the directory exists
+* @param {string} dir the directory
+* @param {function} cb the callback function with the arguments err, exists
+**/
+function  dirExists (dir, cb) { 
+	fs.stat(dir, function(er, s) { 
 		if(er && er.errno == 2){ 
 			cb(null, false); 
 		}else{ 
@@ -15,7 +59,12 @@ function  dirExists (d, cb) {
 	}); 
 } 
 
-var saveUserAccount = function(userobj,callback){
+/**
+* Save the given user account
+* @param {object} userobj
+* @param {function} cb the callback function with the arguments err, userobj
+**/
+var saveUserAccountFile = function(userobj,callback){
 	var filePath = config.db.substring(5);
 	var md5sum = crypto.createHash('md5');
 	md5sum.update(userobj.username);
@@ -30,6 +79,12 @@ var saveUserAccount = function(userobj,callback){
 	});
 }
 
+/**
+* Create the user account
+* @param {object} userobj
+* @param {string} password
+* @param {function} cb the callback function with the arguments err, userobj
+**/
 var createUserAccount = function(userobj,password,callback){
 	if (config.db.indexOf('text:')===0){
 		var keyPair = ursa.generatePrivateKey();
@@ -37,15 +92,21 @@ var createUserAccount = function(userobj,password,callback){
 		userobj.private = keyPair.toPrivatePem('utf8');
 		userobj.public = keyPair.toPublicPem('utf8');
 		userobj.password = keyPair.encrypt(password,'utf8','base64'); // encrypt the password
+		userobj.accounts = keyPair.encrypt(JSON.stringify(userobj.accounts),'utf8','base64'); // encrypt the account configs
 		
-		saveUserAccount(userobj,callback);
+		saveUserAccountFile(userobj,callback);
 		
 	}else{
 		callback({message:'not implemented'},null);
 	}
 } 
 
-
+/**
+* Read the user account if the account exists and the given password matches
+* @param {object} userobj
+* @param {string} password
+* @param {function} cb the callback function with the arguments err, userobj
+**/
 var getUserAccount = function(username,password,callback){
 	if (config.db.indexOf('text:')===0){
 		var filePath = config.db.substring(5);
@@ -60,17 +121,12 @@ var getUserAccount = function(username,password,callback){
 						message: err.message
 					},[]);
 				}else{
-					//console.log(path.join(filePath,user_hash+'.json'));
-					console.log('#'+data);
 					try{
 						var userObj = JSON.parse(data);
 						var private = ursa.createPrivateKey(userObj.private);
-						//var public = ursa.createPublicKey(userObj.public,'utf8');
-						//console.log((userObj.password===private.decr(password,'utf8','utf8') )?'OK':'FAILED');
-						//console.log(private.encrypt(password,'utf8','utf8'));
-						
 						if (private.decrypt(userObj.password,'base64','utf8')===password){
-							callback(null,userObj.accounts);
+							var acc = JSON.parse(private.decrypt(userObj.accounts,'base64','utf8'));
+							callback(null,acc);
 						}else{
 							callback({
 								message: 'password is wrong'
@@ -103,7 +159,7 @@ var getUserAccount = function(username,password,callback){
 						fs.mkdir(filePath,'0777',function(err,path){
 							if (err){
 								callback({
-									message: '0001: '+err.message + filePath
+									message: '0001: '+err.message + ' store: '+ filePath
 								},null);
 							}else{
 								var userobj = {
@@ -131,15 +187,14 @@ var getUserAccount = function(username,password,callback){
 	}
 }
 
-
-var getCurrentSession = function(req) {
+/**
+* Return all accounts for the matching session
+**/
+var getCurrentAccounts = function(req) {
+	 
 	if ((typeof req.session!=='undefined')&&(typeof req.session.user!=='undefined')&&(req.session.user.loggedIn===true)){
-		
-		//var file = '/Users/thomashoffmann/Documents/tualo-webmail/.accounts';
-		//var acc = JSON.parse(fs.readFileSync(file, 'utf8'));
-		
 		return {
-			accounts: req.session.accounts
+			accounts: (typeof req.session.accounts==='undefined')?[]:req.session.accounts
 		}
 		
 	}else{
@@ -211,50 +266,88 @@ var login = function(req, res, next){
 	});
 }
 
+var saveaccount = function(req, res, next){
+	if (config.db.indexOf('text:')===0){
+		var filePath = config.db.substring(5);
+		var md5sum = crypto.createHash('md5');
+		
+		md5sum.update(req.session.user.user);
+		var user_hash =	md5sum.digest('hex');
+		fs.readFile(path.join(filePath,user_hash+'.json'), function (err, data) {
+			if (err){
+				var output = {
+					success: false,
+					msg: err.message
+				};
+				res.json(200,output);
+			}else{
+				var userobj = JSON.parse(data);
+				var accs = getCurrentAccounts(req);
+				var found = -1;
+				console.log(req.body);
+				for(var i in accs.accounts){
+					if (accs.accounts[i].title==req.body.remotetitle){
+						found=i;
+						break;
+					}
+				}
+				
+				if (found==-1){
+					accs.accounts.push({});
+					found = accs.accounts.length-1;
+				}
+				accs.accounts[found].title = req.body.title;
+				accs.accounts[found].signature = req.body.signature;
+				accs.accounts[found].imapServer = req.body.imapServer;
+				accs.accounts[found].imapPort = req.body.imapPort;
+				accs.accounts[found].imapAccount = req.body.imapAccount;
+				accs.accounts[found].imapPassword = req.body.imapPassword;
+				
+				
+				var public = ursa.createPublicKey(userobj.public);
+				
+				userobj.accounts = public.encrypt(JSON.stringify(accs.accounts[found]),'utf8','base64'); // encrypt the account configs
+				req.session.accounts = accs.accounts;
+				console.log(req.session.accounts);
+				var output = {
+					success: true,
+					msg: userobj
+				};
+				res.json(200,output);
+			}
+		})
+	}else{
+		var output = {
+			success: false,
+			msg: 'not supported'
+		};
+		res.json(200,output);
+	}
+}
+
+var accounts = function(req, res, next){
+	
+	var accs = getCurrentAccounts(req);
+	for(var i in accs.accounts){
+		accs.accounts[i].id = accs.accounts[i].title; // tree needs an id
+		accs.accounts[i].remotetitle = accs.accounts[i].title;
+		accs.accounts[i].text = accs.accounts[i].title; // tree needs a text
+		accs.accounts[i].leaf = true; // prevent tree form loading subnodes 
+		accs.accounts[i].imapPassword='******'; // don't submit any passwords
+		accs.accounts[i].smtpPassword='******'; // don't submit any passwords
+	}
+	res.json(200,accs.accounts);
+}
+
 exports.auth_user = auth_user;
-exports.getCurrentSession = getCurrentSession;
+exports.getCurrentAccounts = getCurrentAccounts;
 exports.initRoute=function(app){
 	app.use(auth_user);
 	app.post("/login",login);
+	app.post("/saveaccount",saveaccount);
+	
+	app.get("/accounts",accounts); // Ext Tree Store queries sometimes via get
+	app.post("/accounts",accounts);
 }
 
 
-
-/**
-* Generate a session encrypted by the session_secret.
-* @private
-* @param {object} user the user to be stored
-* @param {object} res the response object for sending the cookie
-* @returns void
-*/
-function gen_session(user, res) {
-	var auth_token = encrypt(JSON.stringify(user), config.session_secret);
-	res.cookie(config.auth_cookie_name, auth_token, {
-		path : '/',
-		maxAge : 1000 * 60 * 60 * 24 * 30
-	});
-}
-
-/**
-* Encrypts the given string with the secret by using aes192
-* @param {string} str the string to be encrypted
-* @param {string} secret the passphrase use to encrypt
-*/
-function encrypt(str, secret) {
-	var cipher = crypto.createCipher('aes192', secret);
-	var enc = cipher.update(str, 'utf8', 'hex');
-	enc += cipher.final('hex');
-	return enc;
-}
-
-/**
-* Decrypts the given string with the secret by using aes192
-* @param {string} str the string to be decrypted
-* @param {string} secret the passphrase use to decrypt
-*/
-function decrypt(str, secret) {
-	var decipher = crypto.createDecipher('aes192', secret);
-	var dec = decipher.update(str, 'hex', 'utf8');
-	dec += decipher.final('utf8');
-	return dec;
-}
