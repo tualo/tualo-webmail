@@ -8,8 +8,15 @@ var config = require('../config/server').config;
 
 
 var startUI = function(req, res, next) {
+	var loggedIn = false;
+	if (typeof req.session!=='undefined'){
+		if (typeof req.session.user!=='undefined'){
+			loggedIn = req.session.user.loggedIn;
+		}
+	} 
 	res.render('layout',{
-		title: 'tualo webmail'
+		title: 'tualo webmail',
+		loggedIn: loggedIn
 	});
 }
 
