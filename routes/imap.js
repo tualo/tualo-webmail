@@ -57,7 +57,7 @@ var _listSort = function(a,b){
 }
 
 var tree = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession(req);
+	var sessionConfig  = session.getCurrentAccounts(req);
 	
 	var output = [];
 	if (req.query.node===''){
@@ -120,7 +120,7 @@ var tree = function(req, res, next) {
 }
 
 var list = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession(req);
+	var sessionConfig  = session.getCurrentAccounts(req);
 	var nodeParts = req.query.node.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
@@ -216,7 +216,7 @@ var list = function(req, res, next) {
 }
 
 var read = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession(req);
+	var sessionConfig  = session.getCurrentAccounts(req);
 	var nodeParts = req.body.id.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
@@ -278,7 +278,7 @@ var read = function(req, res, next) {
 
 
 var move = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession(req);
+	var sessionConfig  = session.getCurrentAccounts(req);
 	var nodeParts = req.body.messageId.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
@@ -344,7 +344,7 @@ var move = function(req, res, next) {
 
 
 var attachment = function(req, res, next) {
-	var sessionConfig  = session.getCurrentSession(req);
+	var sessionConfig  = session.getCurrentAccounts(req);
 	var nodeParts = req.query.id.split('-boxes-'); // id haben den aufbau <account>/<folder>/<folder>
 	if (nodeParts.length == 0 ) {return handleError(new Error('invalid request'),req, res, next);}
 	var accountID = (nodeParts[0].replace('account-',''))*1;
