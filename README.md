@@ -24,7 +24,7 @@ If you done have installed git:
 
 	wget https://github.com/tualo/tualo-webmail/archive/master.zip
 	unzip master.zip
-	cd master
+	cd tualo-webmail-master
 	npm update
 
 Configuration
