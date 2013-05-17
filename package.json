@@ -3,7 +3,7 @@
 	"description": "WebMail-App written in JavaScript ",
 	"homepage": "http://webmail-project.tualo.de",
 	"main": "app.js",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"node": ">=0.8.0"
 	},
