@@ -11,7 +11,7 @@ Ext.define('Ext.tualo.ide.components.AccountTree', {
 	},
 	border: false,
 	load: function(){
-		this.getStore().load(this.getRootNode());
+		this.getStore().load({node:this.getRootNode()});
 	},
 	initComponent: function () {
 		var scope =this;
@@ -37,9 +37,10 @@ Ext.define('Ext.tualo.ide.components.AccountTree', {
 			}]
 		});
 		scope.rootVisible = true;
+		scope.hideHeaders = true;
 		scope.store = Ext.create('Ext.data.TreeStore', {
 			model: this.modelID,
-			autoLoad: false,
+			autoLoad: true,
 			proxy: {
 				type: 'ajax',
 				api: {
@@ -57,14 +58,14 @@ Ext.define('Ext.tualo.ide.components.AccountTree', {
 					exception: function(proxy, response, operation){
 						try{
 							var o = Ext.JSON.decode(response.responseText);
-							
+							/*
 							Ext.MessageBox.show({
 								title: 'REMOTE EXCEPTION',
 								msg: o.msg,
 								icon: Ext.MessageBox.ERROR,
 								buttons: Ext.MessageBox.OK
 							});
-							
+							*/
 						}catch(e){
 							Ext.MessageBox.show({
 								title: 'REMOTE EXCEPTION*',
