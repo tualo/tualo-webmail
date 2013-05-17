@@ -20,5 +20,24 @@
 	"message.From": "From:",
 	"message.Subject": "Subject:",
 	
-	"loader.PleaseWait": "Please wait ..."
+	"loader.PleaseWait": "Please wait ...",
+	
+	"account.imap.title": "IMAP Server",
+	"account.imap.server.label": "Server",
+	"account.imap.port.label": "Port",
+	"account.imap.account.label": "Login",
+	"account.imap.password.label": "Password",
+
+	"account.smtp.title": "SMTP Server",
+	"account.smtp.server.label": "Server",
+	"account.smtp.port.label": "Port",
+	"account.smtp.account.label": "Login",
+	"account.smtp.password.label": "Password",
+	
+	"account.title": "Account",
+	"account.title.label": "Account-Title",
+	"account.signature.label": "Mail-Signature",
+	
+	"account.accounts.title": "Mail Accounts",
+	"account.save.title": "Save"
 }
