@@ -104,8 +104,12 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			listeners: {
 				scope: scope,
 				loggedin: function(){
-					var scope = this;
+					
 					scope.getLayout().setActiveItem(scope.mainFrame);
+					Ext.defer(function(){
+						var scope = this;
+						scope.treePanel.load()
+					},1000,scope);
 				}
 			}
 		});
@@ -119,6 +123,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 				tools: [
 					{
 						type: 'gear',
+						tooltip: dictionary.get('tools.settings.tooltip'),
 						scope: this,
 						handler: function(){
 							var scope = this;
@@ -127,9 +132,9 @@ Ext.define('Ext.tualo.ide.components.Main', {
 					},
 					{
 						type: 'logout',
+						tooltip: dictionary.get('tools.logout.tooltip'),
 						handler: function(){
-							// show help here   icon-signout
-							scope.getLayout().setActiveItem(scope.loginPanel);
+							window.location.href='/?logout=1';
 						}
 					}
 				],
