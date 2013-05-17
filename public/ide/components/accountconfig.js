@@ -15,7 +15,7 @@ Ext.define('Ext.tualo.ide.components.AccountConfig', {
 		this.tree.getStore().load({
 			node: this.tree.getRootNode()
 		});
-		alert(12);
+		
 	},
 	getAllFormElements: function(){
 		var scope =this;
@@ -55,6 +55,8 @@ Ext.define('Ext.tualo.ide.components.AccountConfig', {
 				'smtpAccount',
 				'smtpPassword',
 				'title',
+				'text',
+				'id',
 				'signature',
 				'remotetitle'
 			]
@@ -135,7 +137,14 @@ Ext.define('Ext.tualo.ide.components.AccountConfig', {
 						scope.load();
 					}
 				}
-			]
+			],
+			listeners: {
+				scope: scope,
+				itemclick: function( tree, record, item, index, e, eOpts ){
+					var scope =this;
+					scope.config.getForm().setValues(record.getData());
+				}
+			}
 		});
 		
 		scope.config = Ext.create('Ext.form.Panel',{
