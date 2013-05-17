@@ -57,14 +57,14 @@ Ext.define('Ext.tualo.ide.components.AccountTree', {
 					exception: function(proxy, response, operation){
 						try{
 							var o = Ext.JSON.decode(response.responseText);
-							/*
+							
 							Ext.MessageBox.show({
 								title: 'REMOTE EXCEPTION',
 								msg: o.msg,
 								icon: Ext.MessageBox.ERROR,
 								buttons: Ext.MessageBox.OK
 							});
-							*/
+							
 						}catch(e){
 							Ext.MessageBox.show({
 								title: 'REMOTE EXCEPTION*',
