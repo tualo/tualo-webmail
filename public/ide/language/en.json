@@ -59,6 +59,17 @@
 	"login.form.username": "Username",
 	"login.form.password": "Password",
 	"login.form.cancel": "Cancel",
-	"login.form.submit": "Login"
+	"login.form.submit": "Login",
 
+	"admin.accounts.edit.title": "Edit User-Account",
+	"admin.accounts.form.title": "User-Account",
+	"admin.accounts.form.username": "Username",
+	"admin.accounts.form.password": "Password",
+	"admin.accounts.form.passwordrep": "Password (rep.)",
+	"admin.accounts.form.passwordnotmatch": "The repeated password does not match",
+	"admin.accounts.form.isadmin": "is Admin",
+	"admin.accounts.form.cancel": "Cancel",
+	"admin.accounts.form.submit": "Save",
+	
+	"admin.accounts.form.text": "The password can be set only on new accounts. If the account already exists, only the account holder can change the password."
 }
