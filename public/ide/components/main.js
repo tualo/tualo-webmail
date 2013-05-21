@@ -5,7 +5,8 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		'Ext.panel.Panel',
 		'Ext.tualo.ide.components.MessageBox',
 		'Ext.tualo.ide.components.AccountTree',
-		'Ext.tualo.ide.components.AccountConfig'
+		'Ext.tualo.ide.components.AccountConfig',
+		'Ext.tualo.ide.components.AccountProfile'
 	],
 	layout: 'card',
 	constructor: function (config) {
@@ -87,6 +88,8 @@ Ext.define('Ext.tualo.ide.components.Main', {
 		});
 		scope.accountConfigPanel = Ext.create('Ext.tualo.ide.components.AccountConfig',{
 		});
+		scope.accountProfile = Ext.create('Ext.tualo.ide.components.AccountProfile',{
+		});
 		// those card can be used to show content right of the tree
 		// mailbox or calendar
 		scope.cards = Ext.create('Ext.panel.Panel',{
@@ -94,6 +97,7 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			layout: 'card',
 			items:[
 				scope.accountPanel,
+				scope.accountProfile,
 				scope.accountConfigPanel
 			]
 		});
@@ -104,12 +108,14 @@ Ext.define('Ext.tualo.ide.components.Main', {
 			listeners: {
 				scope: scope,
 				loggedin: function(){
-					
+					var scope = this;
+					isAdmin = scope.loginPanel.result.isAdmin; // override the window variable, see layout.jade
+					loggedIn = scope.loginPanel.result.loggedIn; // override the window variable, see layout.jade
 					scope.getLayout().setActiveItem(scope.mainFrame);
 					Ext.defer(function(){
 						var scope = this;
-						scope.treePanel.load()
-					},1000,scope);
+						scope.treePanel.load();
+					},100,scope);
 				}
 			}
 		});
@@ -131,8 +137,18 @@ Ext.define('Ext.tualo.ide.components.Main', {
 						}
 					},
 					{
+						type: 'user',
+						tooltip: dictionary.get('tools.user.tooltip'),
+						scope: this,
+						handler: function(){
+							var scope = this;
+							scope.cards.getLayout().setActiveItem(scope.accountProfile);
+						}
+					},
+					{
 						type: 'logout',
 						tooltip: dictionary.get('tools.logout.tooltip'),
+						scope: this,
 						handler: function(){
 							window.location.href='/?logout=1';
 						}
