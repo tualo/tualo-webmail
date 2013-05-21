@@ -8,7 +8,7 @@ html(lang="de")
 		link(rel='stylesheet', href='/ide/layout.css')
 		link(rel='stylesheet', href='/font/css/font-awesome.css')
 
-		script var loggedIn=!{loggedIn}
+		script var loggedIn=!{loggedIn}; var isAdmin=!{isAdmin};
 		script(src='/extjs/ext-all.js')
 		-if (typeof locals.project!='undefined')
 			script(src='/ide/app.js')
