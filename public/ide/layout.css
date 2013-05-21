@@ -27,6 +27,10 @@
     background-image: url(/ide/icons/logout.png) !important;
 }
 
+.x-tool-user{
+    background-image: url(/ide/icons/user.png) !important;
+}
+
 
 .x-tool-placeholder {
     background-image: none !important;
