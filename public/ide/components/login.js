@@ -19,7 +19,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 		scope.xid = Ext.id();
 		
 		scope.form = Ext.create('Ext.form.Panel',{
-			title: 'Anmelden',
+			title: dictionary.get('login.form.title'),
 			width: 400,
 			height: 200,
 			layout: 'anchor',
@@ -30,7 +30,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 			},
 			defaultType: 'textfield',
 			items: [{
-				fieldLabel: 'Benutzername',
+				fieldLabel: dictionary.get('login.form.username'),
 				id: scope.xid+'-username',
 				name: 'username',
 				allowBlank: false,
@@ -46,7 +46,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 					}
 				}
 			},{
-				fieldLabel: 'Passwort',
+				fieldLabel: dictionary.get('login.form.password'),
 				name: 'password',
 				id: scope.xid+'-password',
 				inputType: 'password',
@@ -66,12 +66,12 @@ Ext.define('Ext.tualo.ide.components.Login', {
 			
 			// Reset and Submit buttons
 			buttons: [{
-				text: 'Abbruch',
+				text: dictionary.get('login.form.cancel'),
 				handler: function() {
 					this.up('form').getForm().reset();
 				}
 			}, {
-				text: 'Anmelden',
+				text: dictionary.get('login.form.submit'),
 				scope: scope,
 				formBind: true, //only enabled once the form is valid
 				handler: function() {
