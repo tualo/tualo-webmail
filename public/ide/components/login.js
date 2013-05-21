@@ -16,6 +16,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 		var scope =this;
 		
 		scope.sessionID = "";
+		scope.xid = Ext.id();
 		
 		scope.form = Ext.create('Ext.form.Panel',{
 			title: 'Anmelden',
@@ -30,13 +31,37 @@ Ext.define('Ext.tualo.ide.components.Login', {
 			defaultType: 'textfield',
 			items: [{
 				fieldLabel: 'Benutzername',
+				id: scope.xid+'-username',
 				name: 'username',
-				allowBlank: false
+				allowBlank: false,
+				enableKeyEvents: true,
+				listeners: {
+					scope: scope,
+					keydown: function(fld,e,eopts){
+						var scope = this;
+						if(e.getKey()===13){
+							Ext.getCmp(scope.xid+'-password').focus();
+							return false;
+						}
+					}
+				}
 			},{
 				fieldLabel: 'Passwort',
 				name: 'password',
+				id: scope.xid+'-password',
 				inputType: 'password',
-				allowBlank: false
+				allowBlank: false,
+				enableKeyEvents: true,
+				listeners: {
+					scope: scope,
+					keydown: function(fld,e,eopts){
+						var scope = this;
+						if(e.getKey()===13){
+							scope.submit();
+							return false;
+						}
+					}
+				}
 			}],
 			
 			// Reset and Submit buttons
@@ -51,21 +76,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 				formBind: true, //only enabled once the form is valid
 				handler: function() {
 					var scope = this;
-					var form = scope.form.getForm();
-					if (form.isValid()) {
-						form.submit({
-							scope: scope,
-							success: function(form, action) {
-								var scope = this;
-								scope.fireEvent('loggedin');
-								//scope.up().getLayout().setActiveItem(1);  // switch to main view
-								//Ext.Msg.alert('Success', action.result.msg);
-							},
-							failure: function(form, action) {
-								Ext.MessageBox.alert('Failed', action.result.msg);
-							}
-						});
-					}
+					scope.submit();
 				}
 			}]
 		});
@@ -74,5 +85,23 @@ Ext.define('Ext.tualo.ide.components.Login', {
 			scope.form
 		]
 		scope.callParent(arguments);
+	},
+	submit: function(){
+		var scope = this;
+		var form = scope.form.getForm();
+		if (form.isValid()) {
+			form.submit({
+				scope: scope,
+				success: function(form, action) {
+					var scope = this;
+					scope.fireEvent('loggedin');
+					//scope.up().getLayout().setActiveItem(1);  // switch to main view
+					//Ext.Msg.alert('Success', action.result.msg);
+				},
+				failure: function(form, action) {
+					Ext.MessageBox.alert('Failed', action.result.msg);
+				}
+			});
+		}
 	}
 });
