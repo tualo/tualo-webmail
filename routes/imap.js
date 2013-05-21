@@ -139,6 +139,7 @@ var list = function(req, res, next) {
 	})
 	
 	imap.on('error chained',function(conn,keyName,msg,shortmsg){
+		//console.log();
 		handleError(new Error('error chained ('+keyName+'): '+msg+' '+shortmsg),req, res, next);
 	})
 	
