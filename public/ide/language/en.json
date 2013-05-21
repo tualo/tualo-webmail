@@ -42,5 +42,23 @@
 	"account.save.title": "Save",
 	
 	"tools.settings.tooltip": "Settings",
-	"tools.logout.tooltip": "Logout"
+	"tools.logout.tooltip": "Logout",
+	"tools.user.tooltip": "Profile",
+	
+	"account.profile.title": "Account",
+	"account.oldpassword.label" : "old Password",
+	"account.newpassword.label" : "new Password",
+	"account.newpasswordrep.label" : "repeated",
+	
+	
+	"admin.accounts.title": "Accounts",
+	"admin.accounts.id": "ID",
+	"admin.accounts.isAdmin": "is an Admin",
+	
+	"login.form.title": "Login",
+	"login.form.username": "Username",
+	"login.form.password": "Password",
+	"login.form.cancel": "Cancel",
+	"login.form.submit": "Login"
+
 }
