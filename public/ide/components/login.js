@@ -94,6 +94,7 @@ Ext.define('Ext.tualo.ide.components.Login', {
 				scope: scope,
 				success: function(form, action) {
 					var scope = this;
+					scope.result = action.result;
 					scope.fireEvent('loggedin');
 					//scope.up().getLayout().setActiveItem(1);  // switch to main view
 					//Ext.Msg.alert('Success', action.result.msg);
