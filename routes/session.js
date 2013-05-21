@@ -96,7 +96,7 @@ var createUserAccount = function(userobj,password,callback){
 		var json_txt = JSON.stringify(JSON.stringify(userobj.accounts));
 		var chunks = json_txt.match(/.{1,41}/g);
 		for(var i in chunks){
-			chunks[i] = public.encrypt(chunks[i],'utf8','base64');
+			chunks[i] = keyPair.encrypt(chunks[i],'utf8','base64');
 		}
 		userobj.accounts=chunks;
 		saveUserAccountFile(userobj,callback);
@@ -139,7 +139,8 @@ var getUserAccount = function(username,password,callback){
 								}
 								acc = JSON.parse(json_text);
 							}
-							callback(null,acc);
+							//console.log(acc);
+							callback(null,acc,userObj);
 						}else{
 							callback({
 								message: 'password is wrong'
@@ -256,7 +257,7 @@ var login = function(req, res, next){
 	var username = req.body.username;
 	var password = req.body.password;
 	
-	getUserAccount(username,password,function(err,accounts){
+	getUserAccount(username,password,function(err,accounts,userObject){
 		if (err){
 			var output = {
 				success: false,
@@ -266,13 +267,15 @@ var login = function(req, res, next){
 		}else{
 			var user = {
 				user: username,
-				loggedIn: true
+				loggedIn: true,
+				isAdmin: userObject.isAdmin
 			};
 			req.session.user = user;
 			req.session.accounts = accounts;
 			gen_session(user,res); // generate the cookie
 			var output = {
-				success: true
+				success: true,
+				user: user
 			};
 			res.json(200,output);
 		}
@@ -388,6 +391,8 @@ var accounts = function(req, res, next){
 
 exports.auth_user = auth_user;
 exports.getCurrentAccounts = getCurrentAccounts;
+exports.createUserAccount = createUserAccount;
+
 exports.initRoute=function(app){
 	app.use(auth_user);
 	app.post("/login",login);
